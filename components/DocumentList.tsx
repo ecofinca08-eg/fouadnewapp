@@ -48,7 +48,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, settings, fireba
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <script src="https://cdn.tailwindcss.com"></script>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
                 ${styles}
                 ${links}
                 <style>
@@ -67,8 +67,8 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, settings, fireba
                             margin: 0;
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
-                            /* Scale down slightly to ensure it fits nicely */
-                            transform: scale(0.95); 
+                            /* Scale down slightly to ensure it fits safely on one page with printer margins */
+                            transform: scale(0.90); 
                             transform-origin: top center;
                         }
                         #printable-root {
@@ -87,7 +87,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, settings, fireba
                         setTimeout(() => {
                             window.print();
                             // window.close();
-                        }, 500);
+                        }, 800);
                     };
                 </script>
             </body>

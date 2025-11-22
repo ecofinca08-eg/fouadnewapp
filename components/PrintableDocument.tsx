@@ -13,11 +13,35 @@ const PrintableDocument: React.FC<PrintableDocumentProps> = ({ document, setting
     const { companyInfo, tvaRate } = settings;
     const { totalHT, totalTVA, totalTTC } = document;
 
-    const docTypeLabel: Record<string, string> = { 
-        'devis': 'DEVIS', 
-        'bon': 'BON DE LIVRAISON', 
-        'facture': 'FACTURE' 
+    // Define styles per document type
+    const typeStyles = {
+        'devis': {
+            label: 'DEVIS',
+            text: 'text-amber-700',
+            border: 'border-amber-200',
+            bg: 'bg-amber-50',
+            totalBox: 'bg-amber-600',
+            borderDark: 'border-amber-600'
+        },
+        'bon': {
+            label: 'BON DE LIVRAISON',
+            text: 'text-blue-700',
+            border: 'border-blue-200',
+            bg: 'bg-blue-50',
+            totalBox: 'bg-blue-600',
+            borderDark: 'border-blue-600'
+        },
+        'facture': {
+            label: 'FACTURE',
+            text: 'text-emerald-800', 
+            border: 'border-emerald-200',
+            bg: 'bg-emerald-50',
+            totalBox: 'bg-emerald-700',
+            borderDark: 'border-emerald-700'
+        }
     };
+
+    const currentStyle = typeStyles[document.type] || typeStyles['facture'];
 
     return (
         <div 
@@ -25,163 +49,148 @@ const PrintableDocument: React.FC<PrintableDocumentProps> = ({ document, setting
             id={`printable-doc-${document.id}`}
             style={{ 
                 width: '210mm', 
-                minHeight: '290mm', // Reduced to 290mm to ensure safety margin on A4 (297mm)
-                padding: '0', 
+                minHeight: '297mm', // Standard A4
+                padding: '12mm 15mm', // Standard print margins
                 position: 'relative', 
                 boxSizing: 'border-box',
                 margin: '0 auto',
-                backgroundColor: 'white'
+                backgroundColor: 'white',
+                fontSize: '11px', // Reduced base font size
+                lineHeight: '1.3'
             }}
         >
-            <div className="p-8"> {/* Reduced padding from 12mm to 8 (2rem) */}
-                {/* 1. HEADER */}
-                <div className="flex justify-between items-start mb-8"> {/* Reduced mb-12 to mb-8 */}
-                    {/* Left: Company Identity (Logo ABOVE Name) */}
-                    <div className="w-1/2">
-                        <div className="inline-flex flex-col items-center justify-center bg-slate-50 px-6 py-4 rounded-sm border border-slate-100 shadow-sm min-w-[200px]">
-                            <div className="mb-3">
-                                {companyInfo.logoUrl ? (
-                                    <img src={companyInfo.logoUrl} alt="Logo" className="h-40 w-auto object-contain" />
-                                ) : (
-                                    <div className="h-24 w-24 bg-blue-700 text-white rounded-full flex items-center justify-center shadow-md">
-                                        <Box size={48} />
-                                    </div>
-                                )}
-                            </div>
-                            <h1 className="text-lg font-extrabold text-slate-900 uppercase tracking-wide leading-none text-center">
-                                {companyInfo.nom}
-                            </h1>
+            {/* HEADER: Logo & Company Left, Doc Info Right */}
+            <div className={`flex justify-between items-start mb-6 border-b pb-4 ${currentStyle.border}`}>
+                <div className="flex items-start gap-4 w-[60%]">
+                     {companyInfo.logoUrl ? (
+                        <img src={companyInfo.logoUrl} alt="Logo" className="h-14 w-auto object-contain mt-1" /> 
+                    ) : (
+                        <div className="h-12 w-12 bg-slate-800 text-white flex items-center justify-center rounded flex-shrink-0 mt-1">
+                            <Box size={24} />
                         </div>
-                        
-                        <div className="mt-4 text-sm text-slate-500 space-y-1 pl-2 border-l-2 border-blue-600 ml-2">
-                            <p className="font-medium text-slate-700 max-w-[250px]">{companyInfo.adresse}</p>
-                            {companyInfo.email && <p>{companyInfo.email}</p>}
-                            {companyInfo.telephone && <p>{companyInfo.telephone}</p>}
-                        </div>
-                    </div>
-
-                    {/* Right: Document Details & Banner */}
-                    <div className="w-[45%] flex flex-col items-end pt-2">
-                        <div className="bg-slate-900 text-white px-6 py-3 shadow-md mb-6 w-full text-center rounded-sm">
-                            <h2 className="text-2xl font-bold uppercase tracking-[0.2em]">
-                                {docTypeLabel[document.type]}
-                            </h2>
-                        </div>
-                        <div className="w-full pr-1 space-y-2">
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-1">
-                                <span className="text-slate-400 font-semibold text-xs uppercase tracking-wider">N° Référence</span>
-                                <span className="text-slate-900 font-bold text-lg">{document.reference}</span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-1">
-                                <span className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Date d'émission</span>
-                                <span className="text-slate-900 font-bold text-lg">{formatDate(document.date)}</span>
-                            </div>
+                    )}
+                    <div>
+                        <h1 className="text-base font-bold text-slate-900 uppercase tracking-tight leading-tight">{companyInfo.nom}</h1>
+                        <div className="text-[9px] text-slate-500 mt-1 leading-snug">
+                             <p>{companyInfo.adresse}</p>
+                             <p>{companyInfo.telephone} {companyInfo.email && `• ${companyInfo.email}`}</p>
+                             <p className="mt-0.5 text-slate-400">{companyInfo.website}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* 2. CUSTOMER INFO SECTION */}
-                <div className="flex justify-between gap-8 mb-10 bg-slate-50 p-5 rounded-sm border border-slate-100">
-                    {/* De (From) */}
-                    <div className="w-1/2 border-r border-slate-200 pr-4">
-                        <h3 className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">Émetteur</h3>
-                        <div className="text-sm text-slate-600">
-                            <p className="font-bold text-slate-900 text-base mb-1">{companyInfo.nom}</p>
-                            <p className="text-xs text-slate-500 italic mb-2">{companyInfo.legal}</p>
-                            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-                                {companyInfo.ice && <p><span className="font-semibold">ICE:</span> {companyInfo.ice}</p>}
-                                {companyInfo.rc && <p><span className="font-semibold">RC:</span> {companyInfo.rc}</p>}
-                                {companyInfo.patente && <p><span className="font-semibold">Patente:</span> {companyInfo.patente}</p>}
-                            </div>
-                        </div>
+                <div className="text-right w-[35%]">
+                    <h2 className={`text-xl font-extrabold uppercase tracking-widest mb-1 leading-none ${currentStyle.text}`}>
+                        {currentStyle.label}
+                    </h2>
+                    <div className="text-xs space-y-0.5 mt-2">
+                        <p><span className="text-slate-400 font-medium uppercase mr-2">N° Réf:</span> <span className="font-bold text-slate-900">{document.reference}</span></p>
+                        <p><span className="text-slate-400 font-medium uppercase mr-2">Date:</span> <span className="font-bold text-slate-900">{formatDate(document.date)}</span></p>
                     </div>
-
-                    {/* Facturé à (To) */}
-                    <div className="w-1/2 pl-2">
-                        <h3 className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">Destinataire</h3>
-                        <div>
-                            <p className="text-lg font-bold text-slate-900">{document.customer.nom}</p>
-                            <p className="text-sm text-slate-600 whitespace-pre-line mb-2">{document.customer.adresse || 'Adresse non renseignée'}</p>
-                            <div className="text-xs text-slate-500 space-y-1">
-                                {document.customer.ice && <p><span className="font-semibold">ICE:</span> {document.customer.ice}</p>}
-                                {document.customer.email && <p>{document.customer.email}</p>}
-                                {document.customer.telephone && <p>{document.customer.telephone}</p>}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3. ITEMS TABLE */}
-                <div className="mb-8">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="bg-slate-900 text-white">
-                                <th className="py-2 px-3 text-left text-xs font-bold uppercase tracking-wider w-[45%] rounded-tl-sm">Désignation</th>
-                                <th className="py-2 px-3 text-right text-xs font-bold uppercase tracking-wider w-[15%]">Quantité</th>
-                                <th className="py-2 px-3 text-right text-xs font-bold uppercase tracking-wider w-[20%]">Prix Unit. HT</th>
-                                <th className="py-2 px-3 text-right text-xs font-bold uppercase tracking-wider w-[20%] rounded-tr-sm">Total HT</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {document.items.map((item, index) => (
-                                <tr key={index} className="border-b border-slate-200 last:border-none hover:bg-slate-50 transition-colors">
-                                    <td className="py-3 px-3">
-                                        <p className="font-bold text-slate-800">{item.nom}</p>
-                                        <p className="text-xs text-slate-400 mt-0.5">Réf: {item.ref}</p>
-                                    </td>
-                                    <td className="py-3 px-3 text-right font-medium text-slate-700">{item.quantity}</td>
-                                    <td className="py-3 px-3 text-right font-medium text-slate-700">{formatCurrency(item.prixVente)}</td>
-                                    <td className="py-3 px-3 text-right font-bold text-slate-900">{formatCurrency(item.prixVente * item.quantity)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* 4. TOTALS & PAYMENT INFO */}
-                <div className="flex justify-end mt-4">
-                    <div className="w-5/12">
-                        <div className="space-y-2">
-                            <div className="flex justify-between py-1 text-sm">
-                                <span className="text-slate-500 font-medium">Total HT</span>
-                                <span className="font-bold text-slate-800">{formatCurrency(totalHT)}</span>
-                            </div>
-                            <div className="flex justify-between py-1 text-sm border-b border-slate-200 pb-2">
-                                <span className="text-slate-500 font-medium">TVA ({tvaRate * 100}%)</span>
-                                <span className="font-bold text-slate-800">{formatCurrency(totalTVA)}</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-blue-600 text-white p-3 rounded-sm shadow-sm mt-2">
-                                <span className="text-sm font-bold uppercase tracking-wide">Net à Payer TTC</span>
-                                <span className="text-xl font-extrabold">{formatCurrency(totalTTC)}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 5. AMOUNT IN WORDS */}
-                <div className="mt-8 pt-6 border-t-2 border-slate-100">
-                    <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Arrêté la présente facture à la somme de :</p>
-                    <p className="text-base font-bold text-slate-800 italic capitalize bg-slate-50 p-3 rounded-sm inline-block border border-slate-100">
-                        {numberToFrenchWords(totalTTC)}
-                    </p>
                 </div>
             </div>
 
-            {/* 6. FOOTER */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white px-8 py-6 text-center border-t border-slate-200">
-                 <p className="text-sm font-bold text-slate-800 mb-2">Merci de votre confiance.</p>
-                 <div className="text-[9px] text-slate-500 uppercase tracking-wider leading-relaxed space-y-1">
-                    <p>{companyInfo.nom} - {companyInfo.legal}</p>
-                    <p>
-                        {companyInfo.rc && `RC: ${companyInfo.rc} • `}
-                        {companyInfo.patente && `Patente: ${companyInfo.patente} • `}
-                        {companyInfo.if_fiscal && `IF: ${companyInfo.if_fiscal} • `}
-                        {companyInfo.ice && `ICE: ${companyInfo.ice}`}
-                    </p>
+            {/* ADDRESSES GRID */}
+            <div className="flex justify-between gap-6 mb-6">
+                {/* Left: Company Legal Details (Small) */}
+                <div className="w-[45%] pt-1">
+                     <div className="text-[8px] text-slate-500 space-y-0.5 border-l-2 border-slate-100 pl-2">
+                        <p className="font-semibold text-slate-700 mb-1">{companyInfo.legal}</p>
+                        {companyInfo.ice && <p>ICE: {companyInfo.ice}</p>}
+                        {companyInfo.rc && <p>RC: {companyInfo.rc}</p>}
+                        {companyInfo.patente && <p>Patente: {companyInfo.patente}</p>}
+                        {companyInfo.if_fiscal && <p>IF: {companyInfo.if_fiscal}</p>}
+                     </div>
+                </div>
+
+                {/* Right: Customer Box */}
+                <div className="w-[50%] bg-slate-50 rounded border border-slate-200 p-3">
+                    <h3 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Client</h3>
+                    <div className="text-sm font-bold text-slate-900 leading-tight mb-1">{document.customer.nom}</div>
+                    <div className="text-[10px] text-slate-600 leading-snug whitespace-pre-line">
+                        {document.customer.adresse || 'Adresse non renseignée'}
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[9px] text-slate-500">
+                         {document.customer.ice && <div><span className="font-medium">ICE:</span> {document.customer.ice}</div>}
+                         {document.customer.telephone && <div><span className="font-medium">Tél:</span> {document.customer.telephone}</div>}
+                    </div>
+                </div>
+            </div>
+
+            {/* ITEMS TABLE */}
+            <div className="mb-6">
+                <table className="w-full border-collapse">
+                    <thead>
+                        <tr className="border-b-2 border-slate-800 text-[9px] font-bold uppercase tracking-wider text-slate-800">
+                            <th className="py-2 text-left w-[45%]">Désignation</th>
+                            <th className="py-2 text-right w-[15%]">Qté</th>
+                            <th className="py-2 text-right w-[20%]">Prix Unit. HT</th>
+                            <th className="py-2 text-right w-[20%]">Total HT</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-[10px]">
+                        {document.items.map((item, index) => (
+                            <tr key={index} className="border-b border-slate-100 last:border-none">
+                                <td className="py-1.5 pr-2 align-top">
+                                    <p className="font-bold text-slate-800">{item.nom}</p>
+                                    <p className="text-[9px] text-slate-400 font-mono mt-0.5">{item.ref}</p>
+                                </td>
+                                <td className="py-1.5 text-right align-top font-medium">{item.quantity}</td>
+                                <td className="py-1.5 text-right align-top">{formatCurrency(item.prixVente)}</td>
+                                <td className="py-1.5 text-right align-top font-bold text-slate-900">{formatCurrency(item.prixVente * item.quantity)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* TOTALS & FOOTER AREA */}
+            <div className="flex justify-between items-start mt-2">
+                {/* Left: Words & Notes */}
+                <div className="w-[55%] pr-6">
+                    <div className="text-[9px] text-slate-500 mb-2 uppercase tracking-wide">Arrêté la présente facture à la somme de :</div>
+                    <div className={`border p-2 rounded text-xs font-bold italic capitalize ${currentStyle.bg} ${currentStyle.border} ${currentStyle.text}`}>
+                        {numberToFrenchWords(totalTTC)}
+                    </div>
+                    
+                    {/* Bank Info - Compact */}
                     {companyInfo.rib && (
-                        <p className="font-medium text-slate-600 mt-1">RIB: {companyInfo.rib}</p>
+                        <div className="mt-4 text-[9px] text-slate-500">
+                            <span className="font-bold text-slate-700">Mode de paiement:</span> Virement Bancaire<br/>
+                            <span className="font-mono bg-slate-50 px-1 rounded mt-1 inline-block">RIB: {companyInfo.rib}</span>
+                        </div>
                     )}
-                 </div>
+                </div>
+
+                {/* Right: Calculation Block */}
+                <div className="w-[40%]">
+                    <div className="space-y-1 text-[10px]">
+                        <div className="flex justify-between py-1">
+                            <span className="text-slate-500 font-medium">Total HT</span>
+                            <span className="font-bold text-slate-900">{formatCurrency(totalHT)}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-slate-200">
+                            <span className="text-slate-500 font-medium">TVA ({tvaRate * 100}%)</span>
+                            <span className="font-bold text-slate-900">{formatCurrency(totalTVA)}</span>
+                        </div>
+                        
+                        {/* Colored Total Box */}
+                        <div className={`flex justify-between items-center py-2 px-3 mt-2 rounded shadow-sm ${currentStyle.totalBox} text-white print:!bg-opacity-100 print:!text-white`}>
+                            <span className="font-bold text-xs uppercase opacity-90">Net à Payer</span>
+                            <span className="font-extrabold text-lg">{formatCurrency(totalTTC)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             {/* Fixed Footer */}
+            <div className="absolute bottom-0 left-0 right-0 pb-6 px-12 text-center">
+                <div className="border-t border-slate-200 pt-2">
+                    <p className="font-bold text-[9px] text-slate-800 mb-1">Merci de votre confiance.</p>
+                    <p className="text-[8px] text-slate-400 leading-none">
+                         {companyInfo.nom} • {companyInfo.legal}
+                    </p>
+                </div>
             </div>
         </div>
     );
