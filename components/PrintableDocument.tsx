@@ -175,9 +175,9 @@ const PrintableDocument: React.FC<PrintableDocumentProps> = ({ document, setting
                         </div>
                         
                         {/* Colored Total Box */}
-                        <div className={`flex justify-between items-center py-2 px-3 mt-2 rounded shadow-sm ${currentStyle.totalBox} text-white print:!bg-opacity-100 print:!text-white`}>
+                        <div className={`flex justify-between items-center py-2 px-3 mt-2 rounded-md shadow-sm ${currentStyle.totalBox} text-white print:!bg-opacity-100 print:!text-white border border-white/20`}>
                             <span className="font-bold text-xs uppercase opacity-90">Net à Payer</span>
-                            <span className="font-extrabold text-lg">{formatCurrency(totalTTC)}</span>
+                            <span className="font-extrabold text-xl">{formatCurrency(totalTTC)}</span>
                         </div>
                     </div>
                 </div>
