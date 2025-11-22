@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, RotateCw, Lock } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Lock } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 import type { Product, FirebaseContextType } from '../types';
 

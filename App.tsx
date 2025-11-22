@@ -7,7 +7,7 @@ import 'firebase/compat/firestore';
 import { AlertTriangle, LogOut, Clock, Lock } from 'lucide-react';
 import type { Product, Customer, Document, Settings, FirebaseContextType, View } from './types';
 import { exampleCustomer, defaultSettings } from './constants';
-import Sidebar from './components/Sidebar';
+import AppSidebar from './components/AppSidebar';
 import Dashboard from './components/Dashboard';
 import StockManagement from './components/StockManagement';
 import CustomerManagement from './components/CustomerManagement';
@@ -297,7 +297,7 @@ export default function App() {
 
     return (
         <div className="flex h-screen bg-gray-50 font-sans">
-            <Sidebar 
+            <AppSidebar 
                 view={view} 
                 setView={setView} 
                 userId={firebaseContext.userId} 
