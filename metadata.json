@@ -1,0 +1,5 @@
+{
+  "name": "MedoApp - POS and Inventory Management",
+  "description": "A comprehensive Point of Sale (POS) and inventory management system for small businesses, designed for para-pharmacies. Manage products, customers, sales, and generate documents like invoices and quotes.",
+  "requestFramePermissions": []
+}
